@@ -1,8 +1,5 @@
 (* ne pas oublier avant pour tester de lire les documents laby -> tableau*)
 
-
-
-
 (*let lire_ligne_murs cin = 
   if List.length cin < 3 then false 
   else 

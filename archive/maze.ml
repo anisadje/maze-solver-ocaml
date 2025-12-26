@@ -13,3 +13,29 @@ let dump_file (c_in : in_channel) : unit =
   | Sys_error msg ->
       eprintf "Erreur de lecture: %s\n" msg
 
+let main () = 
+  let args = Sys.argv in 
+  if Array.length args < 3 then 
+    printf " Usage : %s [print|dump|solve] <fichier.laby>\n" args.(0)
+else 
+  let action = args.(1) in 
+  let filename = args.(2) in 
+  let ic = open_in filename in 
+
+  match action with 
+  | "dump" -> 
+    dump_file ic; 
+    close_in ic
+  | "print" -> 
+    let g = Grid.from_file ic in 
+    close_in ic; 
+    Grid.print g 
+  | "solve" -> 
+    print_endline "A venir...";
+    close_in ic 
+  | _ -> 
+    printf "Action inconnue\n";
+    close_in ic
+
+let () = main ()
+

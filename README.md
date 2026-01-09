@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Projet Labyrinthe 
 
 ## Membres 

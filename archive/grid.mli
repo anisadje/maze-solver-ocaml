@@ -19,3 +19,5 @@ val width : t -> int
 (* [get g row col] renvoie le caractère à la position donnée *)
 val get : t -> int -> char 
 
+val get_neighbors : t -> int -> int -> (int * int) list
+val find_char : t -> char -> (int * int)

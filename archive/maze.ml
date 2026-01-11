@@ -30,9 +30,13 @@ else
     let g = Grid.from_file ic in 
     close_in ic; 
     Grid.print g 
-  | "solve" -> 
-    print_endline "A venir...";
-    close_in ic 
+  | "solve" ->
+    let g = Grid.from_file ic in
+    close_in ic;
+    if Solver.solve g then
+      print_endline "Chemin trouvé"
+    else
+      print_endline "Aucun chemin" 
   | _ -> 
     printf "Action inconnue\n";
     close_in ic

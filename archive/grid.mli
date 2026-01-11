@@ -1,7 +1,7 @@
 (* Ici sont les fonctions autorisées à être utilisé à l'extérieur du fichier grid.ml*)
 
 (* Le type abstrait représentant un labyrinthe *)
-type t
+type t = string array
 
 (* [from_file channel] lit un labyrinthe.
 Lève une exception si le labyrinthe est invalide*)
@@ -17,7 +17,9 @@ val height : t -> int
 val width : t -> int 
 
 (* [get g row col] renvoie le caractère à la position donnée *)
-val get : t -> int -> char 
+val get : t -> int -> int -> char 
 
 val get_neighbors : t -> int -> int -> (int * int) list
 val find_char : t -> char -> (int * int)
+
+val print_with_path : t -> (int * int) list -> unit  (*afficher les points de la solution*)

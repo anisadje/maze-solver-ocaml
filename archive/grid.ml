@@ -95,7 +95,7 @@ let get g l c = g.(l).[c]
 (*Fonction utilitaire pour savoir si une coordonnée est dans la grille*)
 
 let is_inside g l c = 
-  l >= 0 && l < height g && c >= 0 && c < width gauches
+  l >= 0 && l < height g && c >= 0 && c < width g
 
 (*On renvoie la liste des voisins accessibles depuis (l, c)*)
 

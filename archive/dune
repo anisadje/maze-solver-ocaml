@@ -5,6 +5,7 @@
 
 (executable
  (name maze)
- (modules grid maze)
+ (modules maze grid solver generator)
  (libraries unix)
  (promote (until-clean)))
+

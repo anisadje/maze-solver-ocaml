@@ -1,49 +1,64 @@
-(* Ce fichier doit être dédié à la création de labyrinthe aléatoires pour en pas 
-encombrer maze.ml*)
 
-open Grid
+(* creer la structure de base avec murs fermes et +/- *)
+let init_struct ligs cols =
+  let h = 2 * ligs + 1 in
+  let w = 2 * cols + 1 in
+  Array.init h (fun i ->
+    Array.init w (fun j ->
+      if i mod 2 = 0 then
+        if j mod 2 = 0 then '+' else '-'
+      else
+        if j mod 2 = 0 then '|' else ' '
+    )
+  )
 
-(*creeer une grille remplie de murs *)
-let creer_murs ligs cols =
-  Array.make_matrix ligs cols '#'
+(* choisir coordonnee au hasard *)
+let choisir_random ligs cols =
+  let l = (Random.int ligs) * 2 + 1 in
+  let c = (Random.int cols) * 2 + 1 in
+  (l, c)
 
-(*creuse aleatoirement des chemins *)
-let creuser g densite =
-  let ligs = Array.length g in
-  let cols = Array.length g.(0) in
+(* convertit le char array array en Grid.t (c'est un string array)*)
+let to_grid_t g_chars =
+  Array.map (fun row ->
+    let s = Bytes.create (Array.length row) in
+    Array.iteri (fun i c -> Bytes.set s i c) row;
+    Bytes.to_string s
+  ) g_chars
 
-  for i = 0 to ligs - 1 do
-    for j = 0 to cols - 1 do
-      if Random.float 1.0 < densite then
-        g.(i).(j) <- ' '
-    done
-  done
+(*la fn principale*)
 
-(* place S et E sur des cases libres*)
-let place_s_e g =
-  let ligs = Array.length g in
-  let cols = Array.length g.(0) in
-
-  let libre_random () =
-    let rec aux () =
-      let l = Random.int ligs in
-      let c = Random.int cols in
-      if g.(l).(c) = ' ' then (l, c)
-      else aux ()
-    in aux ()
-  in
-
-  let (sl, sc) = libre_random () in
-  let (el, ec) = libre_random () in
-
-  g.(sl).(sc) <- 'S';
-  g.(el).(ec) <- 'E'
-
-(* fonction principale appelee sur maze.ml *)
-let genere ligs cols densite  =
+let genere ligs cols densite =
   Random.self_init ();
-  let g = creer_murs ligs cols in
-  creuser g densite;
-  place_s_e g;
-  g
 
+  (*creation structure vide*)
+  let g = init_struct ligs cols in
+
+  (*creuser des murs selon la densite*)
+  for i = 1 to ligs do
+    for j = 1 to cols do
+      let r = Random.float 1.0 in
+      if r < densite then begin
+        if Random.bool () then (
+          if i < ligs then g.(2 * i).(2 * j - 1) <- ' ' (*horizontal *)
+        ) else (
+          if j < cols then g.(2 * i - 1).(2 * j) <- ' ' (*vertical *)
+        )
+      end
+    done
+  done;
+
+  (* placement aleatoire de S *)
+  let (s_l, s_c) = choisir_random ligs cols in
+  g.(s_l).(s_c) <- 'S';
+
+  (* placement de E different de S*)
+  let rec placer_e () =
+    let (e_l, e_c) = choisir_random ligs cols in
+    if (e_l, e_c) = (s_l, s_c) then placer_e () (*  recommence si c'est la mm case *)
+    else g.(e_l).(e_c) <- 'E'
+  in
+  placer_e ();
+
+  (* conversion*)
+  to_grid_t g

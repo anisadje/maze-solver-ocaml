@@ -126,7 +126,7 @@ let find_char g target =
     for c = 0 to (width g) - 1 do 
       if g.(l).[c] = target then pos := Some (l, c)
     done 
-  done
+  done;
   match !pos with 
   | Some p -> p
   | None -> failwith "Caractère introuvable"
@@ -136,6 +136,18 @@ le départ S est avant l'arrivée, on peut trouver un chemin en partant de S
 même si il est plus pas que E*)
 
 
+let print_with_path g path =
+  let h = Array.length g in
+  let display = Array.init h (fun i -> Bytes.of_string g.(i)) in
+  
+  List.iter (fun (r, c) ->
+    (* Utilisation de Bytes.get au lieu de .[] *)
+    if Bytes.get display.(r) c = ' ' then 
+      Bytes.set display.(r) c '.'
+  ) path;
 
+  Array.iter (fun b -> 
+    print_endline (Bytes.to_string b)
+  ) display
 
 

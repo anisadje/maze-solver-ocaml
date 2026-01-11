@@ -16,7 +16,7 @@ let dump_file (c_in : in_channel) : unit =
 let main () = 
   let args = Sys.argv in 
   if Array.length args < 3 then 
-    printf " Usage : %s [print|dump|solve] <fichier.laby>\n" args.(0)
+    printf " Usage : %s [print|dump|solve|generate] <fichier.laby>\n" args.(0)
 else 
   let action = args.(1) in 
   let filename = args.(2) in 
@@ -37,6 +37,10 @@ else
       print_endline "Chemin trouvé"
     else
       print_endline "Aucun chemin" 
+  | "generate" ->
+    close_in ic;
+    let g = Generator.generate 20 30 0.5 in
+    Grid.print g
   | _ -> 
     printf "Action inconnue\n";
     close_in ic

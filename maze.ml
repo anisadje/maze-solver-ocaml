@@ -56,6 +56,22 @@ let main () =
           end;
           close_in ic
 
+    | "stats" ->
+        if Array.length args < 3 then
+          printf "Usage: %s stats <fichier.laby>\n" args.(0)
+        else
+          let ic = open_in args.(2) in
+          let g = Grid.from_file ic in
+          close_in ic;
+          let (r, c, w, p) = Grid.get_stats g in
+          let total = r * c in
+          printf "--- Statistiques du labyrinthe ---\n";
+          printf "Dimensions : %d lignes x %d colonnes\n" r c;
+          printf "Murs       : %d\n" w;
+          printf "Passages   : %d\n" p;
+          if total > 0 then
+            printf "Densité    : %.1f%% de murs\n" (float_of_int w /. float_of_int total *. 100.)
+
     | _ -> printf "Action inconnue\n"
 
 let () = main ()

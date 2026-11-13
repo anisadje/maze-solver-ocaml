@@ -1,8 +1,7 @@
-
-(* 1. Créer la structure de base avec murs fermés et +/- *)
-(* On utilise ligs et cols pour calculer la taille réelle de la grille ASCII *)
-let init_struct ligs cols =
-  let h = 2 * ligs + 1 in
+(* Builds a rows x cols maze where every wall is closed.
+   The ASCII grid is (2 * rows + 1) x (2 * cols + 1). *)
+let init_struct rows cols =
+  let h = 2 * rows + 1 in
   let w = 2 * cols + 1 in
   Array.init h (fun i ->
     Array.init w (fun j ->
@@ -13,14 +12,13 @@ let init_struct ligs cols =
     )
   )
 
-(* 2. Choisir une coordonnée au hasard parmi les cases "pièces" (indices impairs) *)
-let choisir_random ligs cols =
-  let l = (Random.int ligs) * 2 + 1 in
+(* Picks a random room (rooms are at odd indices) *)
+let random_room rows cols =
+  let l = (Random.int rows) * 2 + 1 in
   let c = (Random.int cols) * 2 + 1 in
   (l, c)
 
-(* 3. Convertit le char array array en Grid.t (qui est un string array) *)
-(* Utilisation de Bytes -> efficacité *)
+(* char array array -> Grid.t *)
 let to_grid_t g_chars =
   Array.map (fun row ->
     let s = Bytes.create (Array.length row) in
@@ -28,41 +26,36 @@ let to_grid_t g_chars =
     Bytes.to_string s
   ) g_chars
 
-(* 4. La fonction principale de génération *)
-let genere ligs cols densite =
-  (* Initialisation de la graine aléatoire *)
+let generate rows cols density =
   Random.self_init ();
 
-  (* Création de la structure vide (tous les murs fermés) *)
-  let g = init_struct ligs cols in
+  let g = init_struct rows cols in
 
-  (* 5. Creuser des murs selon la densité *)
-  for i = 1 to ligs do
+  (* for each room, with probability [density] we open one of its walls *)
+  for i = 1 to rows do
     for j = 1 to cols do
       let r = Random.float 1.0 in
-      if r < densite then begin
+      if r < density then begin
         if Random.bool () then (
-          (* On creuse horizontalement si on n'est pas sur le bord bas *)
-          if i < ligs then g.(2 * i).(2 * j - 1) <- ' ' 
+          (* wall below the room, except on the last row *)
+          if i < rows then g.(2 * i).(2 * j - 1) <- ' '
         ) else (
-          (* On creuse verticalement si on n'est pas sur le bord droit *)
-          if j < cols then g.(2 * i - 1).(2 * j) <- ' ' 
+          (* wall on the right of the room, except on the last column *)
+          if j < cols then g.(2 * i - 1).(2 * j) <- ' '
         )
       end
     done
   done;
 
-  (* 6. Placement aléatoire du point de départ 'S' *)
-  let (s_l, s_c) = choisir_random ligs cols in
+  let (s_l, s_c) = random_room rows cols in
   g.(s_l).(s_c) <- 'S';
 
-  (* 7. Placement de l'arrivée 'E' sur une case différente de 'S' *)
-  let rec placer_e () =
-    let (e_l, e_c) = choisir_random ligs cols in
-    if (e_l, e_c) = (s_l, s_c) then placer_e () (* Recommence si c'est la même case *)
+  (* E must not be on the same room as S *)
+  let rec place_exit () =
+    let (e_l, e_c) = random_room rows cols in
+    if (e_l, e_c) = (s_l, s_c) then place_exit ()
     else g.(e_l).(e_c) <- 'E'
   in
-  placer_e ();
+  place_exit ();
 
-  (* 8. Conversion finale vers le type abstrait de Grid *)
   to_grid_t g

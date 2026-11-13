@@ -1,37 +1,35 @@
-(** Type abstrait représentant le labyrinthe. 
-    L'implémentation interne est cachée pour garantir l'intégrité des données. *)
+(** A maze is stored as an array of lines, one string per line of the file. *)
 type t = string array
 
-(** [from_file channel] lit un labyrinthe depuis un descripteur d'entrée.
-    Vérifie la validité des dimensions, des caractères, des bords et la présence de S et E.
-    @raise Failure si le labyrinthe est invalide ou vide. *)
+(** [from_file ic] reads a maze from [ic] and checks that it is valid
+    (rectangular, allowed characters only, closed borders, one S and one E).
+    @raise Failure if the maze is empty or invalid. *)
 val from_file : in_channel -> t
 
-(** [print g] affiche le labyrinthe dans la console. *)
+(** [print g] prints the maze. *)
 val print : t -> unit
 
-(** [height g] renvoie la hauteur (nombre de lignes) du labyrinthe. *)
+(** [height g] is the number of lines of the maze. *)
 val height : t -> int
 
-(** [width g] renvoie la largeur (nombre de colonnes) du labyrinthe. *)
+(** [width g] is the number of columns of the maze. *)
 val width : t -> int
 
-(** [get g row col] renvoie le caractère à la position (row, col). *)
+(** [get g row col] is the character at position (row, col). *)
 val get : t -> int -> int -> char
 
-(** [get_neighbors g row col] renvoie la liste des coordonnées des pièces 
-    accessibles depuis la pièce située en (row, col) en vérifiant l'absence de murs. *)
+(** [get_neighbors g row col] is the list of rooms reachable from the room
+    at (row, col), i.e. the ones not separated from it by a wall. *)
 val get_neighbors : t -> int -> int -> (int * int) list
 
-(** [find_char g c] cherche la position (ligne, colonne) de la première occurrence 
-    du caractère [c] (typiquement 'S' ou 'E').
-    @raise Failure si le caractère n'est pas trouvé. *)
-val find_char : t -> char -> (int * int)
+(** [find_char g c] is the position (row, col) of the character [c]
+    (usually 'S' or 'E'). If [c] appears several times, the last one is returned.
+    @raise Failure if [c] is not in the maze. *)
+val find_char : t -> char -> int * int
 
-(** [print_with_path g path] affiche le labyrinthe en marquant les étapes du 
-    chemin [path] par des points ('.'). *)
+(** [print_with_path g path] prints the maze with the cells of [path]
+    marked with dots. *)
 val print_with_path : t -> (int * int) list -> unit
 
-(** [get_stats g] analyse la grille [g] et retourne un quadruplet 
-    (lignes, colonnes, nb_murs, nb_passages). *)
+(** [get_stats g] returns (rows, columns, number of walls, number of passages). *)
 val get_stats : t -> int * int * int * int
